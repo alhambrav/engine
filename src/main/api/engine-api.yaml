@@ -4,7 +4,7 @@ servers:
 info:
   description: |-
     Crafter Engine API
-  version: '4.0.3.0'
+  version: '4.2.0.0'
   title: Crafter Engine
   termsOfService: ''
   contact:
@@ -882,34 +882,27 @@ paths:
       operationId: getProfile
       description: Get the current user’s profile from the session, if no profile is set an empty one will be created. Only use it in conjunction with Studio’s Personas.
       parameters:
-        - name: url
-          in: query
-          description: The folder’s url (e.g. /site/website/index.xml)
-          required: true
-          schema:
-            type: string
         - name: crafterSite
-          in: query 
-          required: true         
+          in: query
           description: Used to set the project/site value
           schema:
             type: string
-          example: "my-editorial"        
+          example: "my-editorial"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'  
+                $ref: '#/components/schemas/UserProfile'
               examples:
                 userProfileExample:
-                  $ref: '#/components/examples/userProfileExample'         
+                  $ref: '#/components/examples/userProfileExample'
         '500':
-          $ref: '#/components/responses/InternalServerError'        
+          $ref: '#/components/responses/InternalServerError'  
   
   /api/1/profile/set:
-    get:
+    post:
       security: []
       tags:
         - other
@@ -917,28 +910,25 @@ paths:
       operationId: setProfile
       description: Set the current user’s profile, all parameters are added to the profile and stored in the session. Only use it in conjunction with Studio’s Personas. <br><br> <i>Note:</i> <br> <i>Any parameter included in the request will be added as a property for the user profile, if the request is made without any parameter then profile will be cleared.</i>
       parameters:
-        - name: age
-          in: query
-          description: The user age
-          schema:
-            type: integer
-        - name: username
-          in: query
-          description: The user name
-          schema:
-            type: string
-        - name: lastname
-          in: query
-          description: The user last name
-          schema:
-            type: string        
         - name: crafterSite
           in: query 
-          required: true         
           description: Used to set the project/site value
           schema:
             type: string
-          example: "my-editorial"        
+          example: "my-editorial"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              description: Properties to add to profile
+              example:
+                username: john
+                lastname: doe
+                age: "30"           
       responses:
         '200':
           description: OK
@@ -946,12 +936,16 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  username:
-                    type: string                    
-                    example: john       
+                additionalProperties:
+                  type: string
+                description: Properties in the profile
+                example:
+                  id: "65de6381b77c310708fbde2665de6381b77c310708fbde26"
+                  username: john
+                  lastname: doe
+                  age: "30"
         '500':
-          $ref: '#/components/responses/InternalServerError'        
+          $ref: '#/components/responses/InternalServerError'
 
   /api/1/site/navigation/breadcrumb:
     get:
@@ -1765,25 +1759,20 @@ components:
 
     UserProfile:
       type: object
-      properties:
-        age:           
-          type: integer
-        username:
-          type: string
-        lastname:           
-          type: string
+      additionalProperties:
+        type: string
 
     NavigationTreeNode:
       type: object
       properties:
         label:
-          type: string                    
-        url: 
-          type: string 
+          type: string               
+        url:
+          type: string
         active:
           type: boolean
         subItems:
-          type: object             
+          type: object            
    
           
   responses:
